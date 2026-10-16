@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Umi Sushi Bar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+/* Layout: dark lacquer single-theme menu; sticky header + category chips; product list with drawn sushi; option sheet; cart sheet with checkout to WhatsApp */
+:root{
+  --bg:#121011; --surface:#1C1819; --raised:#252021; --ink:#F4EDE4; --muted:#B5A9A0; --line:#342D2E;
+  --red:#E0442F; --red-ink:#FFFFFF; --gold:#E7B75F; --ok:#6FCF97;
+  --display:"Dela Gothic One", "Arial Black", sans-serif;
+  --body:"Zen Kaku Gothic New", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.app{max-width:620px;margin:0 auto;padding-inline:16px;padding-block:0 120px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;background:var(--bg);display:flex;align-items:center;gap:12px;padding-block:12px 10px;border-bottom:1px solid var(--line)}
+.logo{width:46px;height:46px;border-radius:50%;background:var(--red);display:grid;place-items:center;flex:none}
+.brand{flex:1;min-width:0}
+.brand h1{margin:0;font-family:var(--display);font-weight:400;font-size:22px;letter-spacing:.5px;line-height:1}
+.brand p{margin:4px 0 0;font-size:12.5px;color:var(--muted)}
+.hero{padding-block:20px 6px;position:relative}
+.hero h2{margin:0;font-family:var(--display);font-weight:400;font-size:34px;line-height:1.05;text-wrap:balance}
+.hero h2 em{font-style:normal;color:var(--red)}
+.hero p{margin:10px 0 0;color:var(--muted);max-width:44ch}
+.info{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.info span{font-size:12.5px;border:1px solid var(--line);border-radius:999px;padding:4px 11px;color:var(--muted)}
+.chips{position:sticky;top:calc(env(safe-area-inset-top,0px) + 69px);z-index:5;background:var(--bg);display:flex;gap:8px;overflow-x:auto;padding-block:12px 10px;scrollbar-width:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 15px;font-weight:700;font-size:14px;min-height:40px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--red);border-color:var(--red);color:var(--red-ink)}
+section.cat{padding-top:18px}
+.cat h3{margin:0 0 2px;font-family:var(--display);font-weight:400;font-size:24px}
+.cat .sub{margin:0 0 8px;color:var(--muted);font-size:13px}
+.item{display:flex;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line);cursor:pointer;background:none;border-left:0;border-right:0;border-bottom:0;width:100%;text-align:left}
+.item canvas{width:84px;height:84px;border-radius:14px;flex:none;background:var(--raised)}
+.it{flex:1;min-width:0}
+.it b{display:block;font-size:15.5px}
+.it span{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.it .tag{display:inline-block;margin-top:0;font-size:11px;color:inherit}.it .tag.off{color:var(--muted)}.it .tag.new{color:#1a1414}.it .pr{color:var(--gold);font-weight:700;font-size:14.5px;margin-top:6px;font-variant-numeric:tabular-nums}
+.plus{flex:none;width:40px;height:40px;border-radius:12px;background:var(--red);color:#fff;display:grid;place-items:center}
+.item.off{opacity:.45;cursor:not-allowed}
+.tag{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:1px 8px;margin-left:6px;vertical-align:2px}
+.tag.hot{background:var(--red);color:#fff}
+.tag.off{border:1px solid var(--muted);color:var(--muted)}
+.tag.new{background:var(--gold);color:#1a1414}
+/* bottom bar */
+.cartbar{position:fixed;left:0;right:0;bottom:0;z-index:8;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,var(--bg) 30%)}
+.cartbar button{display:flex;width:100%;max-width:588px;margin:0 auto;min-height:56px;border:0;border-radius:16px;background:var(--red);color:#fff;font-weight:700;font-size:16px;align-items:center;justify-content:space-between;padding:0 18px;cursor:pointer}
+.cartbar .n{background:rgba(255,255,255,.22);border-radius:999px;padding:2px 10px;font-size:13.5px}
+/* sheets */
+.scrim{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);width:100%;max-width:620px;max-height:92%;overflow:auto;border-radius:20px 20px 0 0;padding:0 16px calc(16px + env(safe-area-inset-bottom,0px))}
+.sheet .hd{position:sticky;top:0;background:var(--surface);display:flex;align-items:center;justify-content:space-between;padding:14px 0 10px;z-index:2}
+.sheet .hd h3{margin:0;font-family:var(--display);font-weight:400;font-size:21px}
+.x{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--raised);display:grid;place-items:center;cursor:pointer}
+.big{width:100%;height:auto;aspect-ratio:16/10;border-radius:16px;display:block;max-width:100%}
+.desc{color:var(--muted);margin:10px 0 0}
+.grp{margin-top:16px}
+.grp h4{margin:0 0 8px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold)}
+.grp h4 small{color:var(--muted);letter-spacing:0;text-transform:none;font-weight:400}
+.opt{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);background:var(--raised);border-radius:12px;padding:11px 13px;margin-bottom:8px;min-height:48px;cursor:pointer;width:100%;text-align:left}
+.opt[aria-pressed="true"]{border-color:var(--red);box-shadow:0 0 0 1.5px var(--red) inset}
+.opt span:last-child{color:var(--gold);font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.qty{display:flex;align-items:center;gap:14px}
+.qty button{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--raised);font-size:20px;cursor:pointer}
+.qty b{font-size:18px;min-width:20px;text-align:center;font-variant-numeric:tabular-nums}
+.addrow{display:flex;gap:12px;align-items:center;margin-top:18px}
+.cta{flex:1;min-height:54px;border:0;border-radius:14px;background:var(--red);color:#fff;font-weight:700;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
+.cta:disabled{opacity:.5;cursor:not-allowed}
+textarea.f,input.f,select.f{width:100%;border:1px solid var(--line);background:var(--raised);border-radius:12px;padding:11px 12px;min-height:46px}
+textarea.f{min-height:70px;resize:vertical}
+label.l{display:block;font-size:13px;font-weight:700;margin:12px 0 6px}
+.line{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.line:first-child{border-top:0}
+.line b{display:block}
+.line small{display:block;color:var(--muted);font-size:12.5px}
+.line .pr{color:var(--gold);font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+.line .rm{border:0;background:none;color:var(--muted);text-decoration:underline;font-size:12.5px;padding:0;cursor:pointer;min-height:28px}
+.tot{display:flex;justify-content:space-between;font-weight:700;font-size:18px;padding:12px 0 2px;border-top:1px solid var(--line)}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg button{min-height:46px;border-radius:12px;border:1px solid var(--line);background:var(--raised);font-weight:700;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.two>div{min-width:0}
+.pay{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--raised);border:1px dashed var(--gold);border-radius:12px;padding:12px 14px;margin-top:10px}
+.pay b{font-size:17px;font-variant-numeric:tabular-nums}
+.copy{border:1px solid var(--gold);background:none;color:var(--gold);border-radius:10px;min-height:40px;padding:0 14px;font-weight:700;cursor:pointer}
+.err{color:#FF8A7A;font-weight:700;font-size:13.5px;min-height:18px;margin-top:8px}
+.note{font-size:12.5px;color:var(--muted);margin-top:8px}
+.demo{font-size:12px;color:var(--muted);text-align:center;margin-top:28px}
+.toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:var(--ink);color:var(--bg);font-weight:700;padding:10px 16px;border-radius:999px;z-index:30;font-size:14px;max-width:calc(100% - 32px);text-align:center}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="logo" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5.5" stroke="#E7B75F"/><circle cx="12" cy="12" r="2" fill="#fff"/></svg></div>
+    <div class="brand"><h1>UMI SUSHI BAR</h1><p>Sushi · Rolls · Cocina japonesa</p></div>
+  </header>
+  <div class="hero">
+    <h2>Tu sushi favorito, <em>directo a tu WhatsApp.</em></h2>
+    <p>Elige tus rolls, arma tu pedido y nos llega completo. Te confirmamos el valor del domicilio por WhatsApp.</p>
+    <div class="info"><span>Mar a dom · 12:00 – 3:00 p. m. y 6:00 – 10:00 p. m.</span><span>Domicilio y para recoger</span><span>Nequi o efectivo</span></div>
+  </div>
+  <nav class="chips" id="chips" aria-label="Categorías"></nav>
+  <div id="menu"></div>
+  <p class="demo">Demo de muestra · Nombre, productos y precios son de ejemplo</p>
+</div>
+<div class="cartbar" id="cartbar" hidden><button id="openCart"><span class="n" id="cartN">0</span><span>Ver mi pedido</span><span id="cartT">$0</span></button></div>
+<div id="sheetRoot"></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+const WHATSAPP="573124502235"; // demo: llega a quien muestra la demo
+const NEQUI="300 000 0000";
+const CATS=[
+ {id:"combos",n:"Combos",s:"Para compartir. Incluyen palillos, soya, wasabi y jengibre."},
+ {id:"especiales",n:"Rolls especiales",s:"La casa recomienda. 10 piezas."},
+ {id:"clasicos",n:"Rolls clásicos",s:"Elige 5 o 10 piezas."},
+ {id:"nigiri",n:"Nigiri y sashimi",s:"Cortes frescos del día."},
+ {id:"entradas",n:"Entradas",s:""},
+ {id:"bebidas",n:"Bebidas",s:""}
+];
+// id, cat, nombre, desc, precio base, dibujo [tipo, colores], opciones, etiqueta
+const P=[
+ ["combo2","combos","Combo para 2","30 piezas: 3 rolls a elección de la casa + 4 nigiris.",85000,["combo","#F26B4F","#2E8B57"],"combo","hot"],
+ ["combo4","combos","Combo para 4","60 piezas: 5 rolls + 8 nigiris + gyozas.",160000,["combo","#F2A541","#F26B4F"],"combo"],
+ ["umi","especiales","Umi Roll","Langostino tempura, aguacate y queso crema, cubierto de salmón flameado con salsa de anguila.",38000,["ura","#F28C6B","#9BD27F"],"esp","hot"],
+ ["acevichado","especiales","Acevichado","Atún, pepino y aguacate, cubierto de pescado blanco con salsa acevichada.",36000,["ura","#F5E9D8","#E85D3A"],"esp"],
+ ["dragon","especiales","Dragon Roll","Anguila y pepino, cubierto de aguacate, ajonjolí y salsa de anguila.",39000,["ura","#8DBF5A","#6B3F2A"],"esp","new"],
+ ["volcan","especiales","Volcán","Roll tempura de cangrejo y queso crema con topping de mariscos gratinados y spicy mayo.",37000,["ura","#F2A541","#E0442F"],"esp"],
+ ["california","clasicos","California","Cangrejo, aguacate y pepino, por fuera ajonjolí.",17000,["ura","#F7D7C4","#7CBF63"],"cla"],
+ ["philadelphia","clasicos","Philadelphia","Salmón, queso crema y aguacate.",18000,["maki","#F28C6B","#FFFFFF"],"cla"],
+ ["spicytuna","clasicos","Spicy tuna","Atún picante, cebollín y pepino.",19000,["maki","#C9323B","#9BD27F"],"cla"],
+ ["vegano","clasicos","Vegetariano","Aguacate, pepino, zanahoria, mango y queso crema.",15000,["maki","#9BD27F","#F2A541"],"cla"],
+ ["nigiri-salmon","nigiri","Nigiri de salmón","2 unidades.",14000,["nigiri","#F28C6B"],"none"],
+ ["nigiri-atun","nigiri","Nigiri de atún","2 unidades.",15000,["nigiri","#C9323B"],"none"],
+ ["sashimi","nigiri","Sashimi mixto","9 cortes: salmón, atún y pescado blanco.",32000,["sashimi","#F28C6B","#C9323B"],"none"],
+ ["gyozas","entradas","Gyozas","6 unidades de cerdo o vegetales, con salsa ponzu.",16000,["gyoza","#E8C38A"],"gyoza"],
+ ["edamame","entradas","Edamame","Con sal marina o picante.",12000,["edamame","#7CBF63"],"edam"],
+ ["tempura","entradas","Langostinos tempura","5 unidades con salsa agridulce.",24000,["tempura","#E7B75F"],"none"],
+ ["te","bebidas","Té verde frío","400 ml.",6000,["drink","#9BD27F"],"none"],
+ ["limonada","bebidas","Limonada de coco","400 ml.",9000,["drink","#F5E9D8"],"none"],
+ ["ramune","bebidas","Ramune japonesa","Sabores surtidos.",12000,["drink","#7FB3F2"],"none","new"],
+ ["gaseosa","bebidas","Gaseosa","350 ml.",4500,["drink","#C9323B"],"none"]
+];
+const OPTS={
+ combo:[{k:"salsas",t:"Salsas extra",multi:true,o:[["Anguila",2000],["Acevichada",2000],["Spicy mayo",2000],["Soya extra",1000]]}],
+ esp:[{k:"salsas",t:"Salsas extra",multi:true,o:[["Anguila",2000],["Acevichada",2000],["Spicy mayo",2000]]}],
+ cla:[{k:"piezas",t:"Tamaño",req:true,o:[["5 piezas",0],["10 piezas",null]]},{k:"estilo",t:"Preparación",req:true,o:[["Natural",0],["Tempura (frito)",3000]]},{k:"salsas",t:"Salsas extra",multi:true,o:[["Anguila",2000],["Acevichada",2000],["Spicy mayo",2000]]}],
+ gyoza:[{k:"relleno",t:"Relleno",req:true,o:[["Cerdo",0],["Vegetales",0]]}],
+ edam:[{k:"sabor",t:"Sabor",req:true,o:[["Sal marina",0],["Picante",0]]}],
+ none:[]
+};
+const AGOTADOS=["dragon"]; // en la versión real se marcan desde Google Sheets
+const ALL={};P.forEach(p=>ALL[p[0]]={id:p[0],cat:p[1],n:p[2],d:p[3],p:p[4],draw:p[5],opts:OPTS[p[6]],tag:p[7]});
+
+const $=s=>document.querySelector(s);
+const money=v=>"$"+v.toLocaleString("es-CO").replace(/,/g,".");
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function toast(t){const el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,1900)}
+let cart=[];try{cart=JSON.parse(localStorage.getItem("umi-cart"))||[]}catch(e){}
+const save=()=>{try{localStorage.setItem("umi-cart",JSON.stringify(cart))}catch(e){}};
+
+/* ---------- dibujos ---------- */
+function rnd(seed){let s=0;for(const c of seed)s=(s*31+c.charCodeAt(0))%2147483647;return()=>(s=(s*16807)%2147483647)/2147483647}
+function draw(cv,item,W,H){
+  cv.width=W;cv.height=H;const g=cv.getContext("2d"),r=rnd(item.id),[type,c1,c2]=item.draw;
+  g.fillStyle="#252021";g.fillRect(0,0,W,H);
+  const s=Math.min(W,H),cx=W/2,cy=H/2;
+  const plate=()=>{g.fillStyle="#141112";g.beginPath();g.ellipse(cx,cy+s*.06,s*.46,s*.36,0,0,7);g.fill()};
+  const sesame=(x,y,R,n,col)=>{g.fillStyle=col;for(let i=0;i<n;i++){const a=r()*7,d=Math.sqrt(r())*R;g.beginPath();g.ellipse(x+Math.cos(a)*d,y+Math.sin(a)*d,R*.05,R*.025,r()*3,0,7);g.fill()}};
+  const maki=(x,y,R,a,b)=>{g.fillStyle="#1D2B22";g.beginPath();g.arc(x,y,R,0,7);g.fill();g.fillStyle="#F6F1E7";g.beginPath();g.arc(x,y,R*.86,0,7);g.fill();
+    g.fillStyle=a;g.beginPath();g.arc(x-R*.12,y-R*.05,R*.32,0,7);g.fill();g.fillStyle=b;g.beginPath();g.arc(x+R*.2,y+R*.12,R*.22,0,7);g.fill()};
+  const ura=(x,y,R,a,b)=>{g.fillStyle=a;g.beginPath();g.arc(x,y,R,0,7);g.fill();g.fillStyle="#F6F1E7";g.beginPath();g.arc(x,y,R*.82,0,7);g.fill();
+    sesame(x,y,R*.8,14,"#C9B48A");g.fillStyle="#1D2B22";g.beginPath();g.arc(x,y,R*.42,0,7);g.fill();g.fillStyle=b;g.beginPath();g.arc(x-R*.1,y,R*.2,0,7);g.fill();g.fillStyle="#F28C6B";g.beginPath();g.arc(x+R*.14,y+R*.06,R*.14,0,7);g.fill()};
+  const nigiri=(x,y,w,h,col)=>{g.fillStyle="#F6F1E7";g.beginPath();g.ellipse(x,y+h*.25,w*.48,h*.42,0,0,7);g.fill();g.fillStyle=col;g.beginPath();g.ellipse(x,y-h*.05,w*.55,h*.4,0,0,7);g.fill();
+    g.strokeStyle="rgba(255,255,255,.45)";g.lineWidth=Math.max(1.5,w*.03);for(let i=-2;i<=2;i++){g.beginPath();g.moveTo(x+i*w*.16-w*.08,y-h*.32);g.lineTo(x+i*w*.16+w*.08,y+h*.2);g.stroke()}};
+  plate();
+  if(type==="maki"||type==="ura"){const f=type==="maki"?maki:ura;const R=s*.15;[[-1.05,-.15],[0,-.05],[1.05,-.15],[-.5,.75],[.55,.75]].forEach(([dx,dy])=>f(cx+dx*R*1.9,cy+dy*R*1.6,R,c1,c2));
+    if(type==="ura"&&item.cat==="especiales"){g.strokeStyle="#4A2A1A";g.lineWidth=s*.012;g.beginPath();g.moveTo(cx-s*.32,cy-s*.05);for(let i=0;i<8;i++)g.quadraticCurveTo(cx-s*.28+i*s*.08,cy+(i%2?s*.08:-s*.06),cx-s*.24+i*s*.08,cy);g.stroke()}}
+  else if(type==="nigiri"){nigiri(cx-s*.17,cy,s*.32,s*.3,c1);nigiri(cx+s*.17,cy+s*.04,s*.32,s*.3,c1)}
+  else if(type==="sashimi"){[c1,c2,"#F5E9D8"].forEach((c,i)=>{for(let k=0;k<3;k++){g.fillStyle=c;g.beginPath();g.ellipse(cx-s*.24+i*s*.24,cy-s*.1+k*s*.1,s*.1,s*.05,-.4,0,7);g.fill()}});g.fillStyle="#7CBF63";g.beginPath();g.arc(cx+s*.33,cy+s*.2,s*.04,0,7);g.fill()}
+  else if(type==="combo"){const R=s*.085;for(let i=0;i<9;i++){const x=cx-s*.3+(i%3)*s*.2,y=cy-s*.16+Math.floor(i/3)*s*.15;(i%2?ura:maki)(x,y,R,i%3?c1:c2,c2)}nigiri(cx+s*.33,cy+s*.02,s*.16,s*.15,"#F28C6B");nigiri(cx+s*.33,cy+s*.2,s*.16,s*.15,"#C9323B")}
+  else if(type==="gyoza"){for(let i=0;i<5;i++){const x=cx-s*.28+i*s*.14,y=cy+(i%2?s*.05:-s*.03);g.fillStyle=c1;g.beginPath();g.ellipse(x,y,s*.09,s*.15,.4,0,7);g.fill();g.fillStyle="#B98A4A";g.beginPath();g.ellipse(x+s*.03,y+s*.05,s*.06,s*.08,.4,0,7);g.fill()}}
+  else if(type==="edamame"){for(let i=0;i<9;i++){const x=cx+(r()-.5)*s*.6,y=cy+(r()-.5)*s*.4;g.fillStyle=c1;g.beginPath();g.ellipse(x,y,s*.11,s*.04,r()*3,0,7);g.fill();g.fillStyle="#5E9F4B";g.beginPath();g.arc(x,y,s*.022,0,7);g.fill()}}
+  else if(type==="tempura"){for(let i=0;i<4;i++){const x=cx-s*.24+i*s*.16;g.fillStyle=c1;g.beginPath();g.ellipse(x,cy,s*.06,s*.22,.25,0,7);g.fill();g.fillStyle="#E0442F";g.beginPath();g.moveTo(x+s*.04,cy-s*.2);g.lineTo(x+s*.1,cy-s*.3);g.lineTo(x+s*.01,cy-s*.24);g.fill()}}
+  else if(type==="drink"){g.fillStyle="rgba(255,255,255,.12)";g.fillRect(cx-s*.14,cy-s*.3,s*.28,s*.56);g.fillStyle=c1;g.globalAlpha=.85;g.fillRect(cx-s*.12,cy-s*.12,s*.24,s*.36);g.globalAlpha=1;g.fillStyle="#fff";g.fillRect(cx+s*.02,cy-s*.42,s*.03,s*.3)}
+}
+
+/* ---------- menú ---------- */
+function renderMenu(){
+  $("#chips").innerHTML=CATS.map((c,i)=>`<button class="chip" data-cat="${c.id}" aria-pressed="${i===0}">${c.n}</button>`).join("");
+  $("#menu").innerHTML=CATS.map(c=>`<section class="cat" id="cat-${c.id}"><h3>${c.n}</h3>${c.s?`<p class="sub">${c.s}</p>`:""}
+    ${P.filter(p=>p[1]===c.id).map(p=>{const it=ALL[p[0]],off=AGOTADOS.includes(it.id);const from=it.opts.some(o=>o.k==="piezas");
+      return `<button class="item${off?" off":""}" data-open="${it.id}" ${off?'aria-disabled="true"':""}><canvas aria-hidden="true"></canvas><span class="it"><b>${it.n}${off?'<span class="tag off">Agotado hoy</span>':it.tag==="hot"?'<span class="tag hot">Más pedido</span>':it.tag==="new"?'<span class="tag new">Nuevo</span>':""}</b><span>${it.d}</span><span class="pr">${from?"Desde ":""}${money(it.p)}</span></span>${off?"":'<span class="plus" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>'}</button>`}).join("")}</section>`).join("");
+  document.querySelectorAll("#menu .item").forEach(b=>draw(b.querySelector("canvas"),ALL[b.dataset.open],168,168));
+  updateBar();
+}
+function updateBar(){const n=cart.reduce((a,c)=>a+c.q,0);$("#cartbar").hidden=!n;$("#cartN").textContent=n;$("#cartT").textContent=money(cart.reduce((a,c)=>a+c.unit*c.q,0))}
+
+/* ---------- ficha de producto ---------- */
+let cur=null;
+function unitPrice(it,sel){let p=it.p;it.opts.forEach(g=>{(sel[g.k]||[]).forEach(i=>{const v=g.o[i][1];p+=v===null?it.p:v})});return p}
+function openItem(id){
+  const it=ALL[id];if(AGOTADOS.includes(id)){toast("Agotado por hoy");return}
+  const sel={};it.opts.forEach(g=>{if(g.req)sel[g.k]=[0]});
+  cur={it,sel,q:1,note:""};
+  $("#sheetRoot").innerHTML=`<div class="scrim" data-scrim="1"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-t">
+    <div class="hd"><h3 id="sh-t">${it.n}</h3><button class="x" data-close="1" aria-label="Cerrar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <canvas class="big" aria-hidden="true"></canvas><p class="desc">${it.d}</p><div id="grps"></div>
+    <label class="l" for="itNote">¿Alguna indicación?</label><input class="f" id="itNote" placeholder="Ej. sin cebollín, salsa aparte">
+    <div class="addrow"><div class="qty"><button data-q="-1" aria-label="Quitar uno">−</button><b id="qn">1</b><button data-q="1" aria-label="Agregar uno">+</button></div><button class="cta" id="addBtn"></button></div>
+  </div></div>`;
+  draw($("#sheetRoot canvas"),it,640,400);renderItem();
+}
+function renderItem(){
+  const {it,sel,q}=cur;
+  $("#grps").innerHTML=it.opts.map(g=>`<div class="grp"><h4>${g.t} <small>${g.req?"· elige una":"· opcional"}</small></h4>${g.o.map((o,i)=>{const on=(sel[g.k]||[]).includes(i);const v=o[1]===null?it.p:o[1];return `<button class="opt" data-g="${g.k}" data-i="${i}" aria-pressed="${on}"><span>${o[0]}</span><span>${v?"+ "+money(v):"Incluido"}</span></button>`}).join("")}</div>`).join("");
+  $("#qn").textContent=q;$("#addBtn").textContent="Agregar · "+money(unitPrice(it,sel)*q);
+}
+function closeSheet(){$("#sheetRoot").innerHTML="";cur=null}
+
+/* ---------- carrito ---------- */
+let ck={mode:"domicilio",pay:"Nequi",name:"",tel:"",barrio:"",dir:"",cambio:"",notas:"",palillos:"2"};
+try{Object.assign(ck,JSON.parse(localStorage.getItem("umi-ck"))||{})}catch(e){}
+const saveCk=()=>{try{localStorage.setItem("umi-ck",JSON.stringify({name:ck.name,tel:ck.tel,barrio:ck.barrio,dir:ck.dir}))}catch(e){}};
+function openCart(){
+  const sub=cart.reduce((a,c)=>a+c.unit*c.q,0);
+  $("#sheetRoot").innerHTML=`<div class="scrim" data-scrim="1"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ct">
+  <div class="hd"><h3 id="ct">Tu pedido</h3><button class="x" data-close="1" aria-label="Cerrar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div>${cart.map((c,i)=>`<div class="line"><div><b>${c.q} × ${esc(c.n)}</b>${c.det?`<small>${esc(c.det)}</small>`:""}${c.note?`<small>Nota: ${esc(c.note)}</small>`:""}<button class="rm" data-rm="${i}">Quitar</button></div><span class="pr">${money(c.unit*c.q)}</span></div>`).join("")}</div>
+  <div class="tot"><span>Subtotal</span><span>${money(sub)}</span></div>
+  <p class="note">${ck.mode==="domicilio"?"El valor del domicilio depende del barrio y te lo confirmamos por WhatsApp.":"Recoges en el local: Cra. 7 # 9-15, centro (dirección de ejemplo)."}</p>
+  <label class="l">¿Cómo lo quieres?</label>
+  <div class="seg"><button data-mode="domicilio" aria-pressed="${ck.mode==="domicilio"}">Domicilio</button><button data-mode="recoger" aria-pressed="${ck.mode==="recoger"}">Recoger</button></div>
+  <div class="two"><div><label class="l" for="cName">Nombre</label><input class="f" id="cName" autocomplete="name" value="${esc(ck.name)}"></div>
+  <div><label class="l" for="cTel">Celular</label><input class="f" id="cTel" inputmode="tel" autocomplete="tel" value="${esc(ck.tel)}"></div></div>
+  ${ck.mode==="domicilio"?`<div class="two"><div><label class="l" for="cBarrio">Barrio</label><input class="f" id="cBarrio" value="${esc(ck.barrio)}"></div><div><label class="l" for="cDir">Dirección</label><input class="f" id="cDir" autocomplete="street-address" value="${esc(ck.dir)}"></div></div>`:""}
+  <label class="l" for="cPal">¿Cuántos pares de palillos?</label>
+  <select class="f" id="cPal">${["0 (no necesito)","1","2","3","4","5","6"].map(v=>`<option ${v.startsWith(ck.palillos)?"selected":""}>${v}</option>`).join("")}</select>
+  <label class="l">Forma de pago</label>
+  <div class="seg"><button data-pay="Nequi" aria-pressed="${ck.pay==="Nequi"}">Nequi</button><button data-pay="Efectivo" aria-pressed="${ck.pay==="Efectivo"}">Efectivo</button></div>
+  ${ck.pay==="Nequi"?`<div class="pay"><span>Nequi<br><b>${NEQUI}</b></span><button class="copy" id="copyNequi">Copiar</button></div><p class="note">Envía el comprobante en el mismo chat de WhatsApp.</p>`:`<label class="l" for="cCambio">¿Con cuánto pagas? (para llevar el cambio)</label><input class="f" id="cCambio" inputmode="numeric" placeholder="Ej. 100.000" value="${esc(ck.cambio)}">`}
+  <label class="l" for="cNotas">Notas del pedido (opcional)</label><textarea class="f" id="cNotas" placeholder="Ej. timbre dañado, llamar al llegar">${esc(ck.notas)}</textarea>
+  <div class="err" id="err" role="alert"></div>
+  <button class="cta" id="send" style="width:100%;margin-top:6px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 21l2.1-5.4A8.4 8.4 0 1 1 21 11.5z"/></svg>Enviar pedido por WhatsApp</button>
+  </div></div>`;
+}
+function buildMsg(){
+  const sub=cart.reduce((a,c)=>a+c.unit*c.q,0);
+  const L=["*Nuevo pedido · Umi Sushi Bar*",""];
+  cart.forEach(c=>{L.push(`• ${c.q} × ${c.n} — ${money(c.unit*c.q)}`);if(c.det)L.push(`   ${c.det}`);if(c.note)L.push(`   Nota: ${c.note}`)});
+  L.push("",`*Subtotal:* ${money(sub)}`,ck.mode==="domicilio"?"*Domicilio:* por confirmar según barrio":"*Recoge en el local*","",
+    `*Nombre:* ${ck.name.trim()}`,`*Celular:* ${ck.tel.trim()}`);
+  if(ck.mode==="domicilio")L.push(`*Barrio:* ${ck.barrio.trim()}`,`*Dirección:* ${ck.dir.trim()}`);
+  L.push(`*Palillos:* ${ck.palillos.split(" ")[0]} pares`,`*Pago:* ${ck.pay}${ck.pay==="Efectivo"&&ck.cambio?` (paga con $${ck.cambio})`:""}`);
+  if(ck.notas.trim())L.push(`*Notas:* ${ck.notas.trim()}`);
+  return L.join("\n");
+}
+
+/* ---------- eventos ---------- */
+document.addEventListener("click",e=>{
+  if(e.target.dataset&&e.target.dataset.scrim){closeSheet();return}
+  const t=e.target.closest("button");if(!t)return;
+  if(t.dataset.cat){document.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",c===t));const sec=$("#cat-"+t.dataset.cat);window.scrollTo({top:sec.getBoundingClientRect().top+scrollY-128,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});return}
+  if(t.dataset.open){openItem(t.dataset.open);return}
+  if(t.dataset.close){closeSheet();return}
+  if(t.dataset.g){const g=cur.it.opts.find(x=>x.k===t.dataset.g),i=+t.dataset.i;const arr=cur.sel[g.k]||[];
+    if(g.multi){cur.sel[g.k]=arr.includes(i)?arr.filter(x=>x!==i):[...arr,i]}else cur.sel[g.k]=[i];renderItem();return}
+  if(t.dataset.q){cur.q=Math.max(1,cur.q+ +t.dataset.q);renderItem();return}
+  if(t.id==="addBtn"){const {it,sel,q}=cur;const det=it.opts.map(g=>(sel[g.k]||[]).map(i=>g.o[i][0]).join(", ")).filter(Boolean).join(" · ");
+    cart.push({id:it.id,n:it.n,det,note:($("#itNote").value||"").trim(),unit:unitPrice(it,sel),q});save();closeSheet();updateBar();toast(it.n+" agregado");return}
+  if(t.id==="openCart"){openCart();return}
+  if(t.dataset.rm){cart.splice(+t.dataset.rm,1);save();updateBar();if(!cart.length){closeSheet();return}openCart();return}
+  if(t.dataset.mode){ck.mode=t.dataset.mode;openCart();return}
+  if(t.dataset.pay){ck.pay=t.dataset.pay;openCart();return}
+  if(t.id==="copyNequi"){navigator.clipboard.writeText(NEQUI.replace(/\s/g,"")).then(()=>toast("Número copiado")).catch(()=>toast("Nequi: "+NEQUI));return}
+  if(t.id==="send"){const err=$("#err");
+    if(ck.name.trim().length<2)return err.textContent="Escribe tu nombre.";
+    if(ck.tel.replace(/\D/g,"").length<10)return err.textContent="Escribe un celular de 10 dígitos.";
+    if(ck.mode==="domicilio"&&(!ck.barrio.trim()||ck.dir.trim().length<5))return err.textContent="Escribe el barrio y la dirección.";
+    err.textContent="";saveCk();
+    const a=document.createElement("a");a.href="https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(buildMsg());a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();a.remove();
+    toast("Abriendo WhatsApp con tu pedido");}
+});
+document.addEventListener("input",e=>{const m={cName:"name",cTel:"tel",cBarrio:"barrio",cDir:"dir",cCambio:"cambio",cNotas:"notas"}[e.target.id];if(m)ck[m]=e.target.value});
+document.addEventListener("change",e=>{if(e.target.id==="cPal")ck.palillos=e.target.value});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSheet()});
+renderMenu();
+</script>
+
+</html>
